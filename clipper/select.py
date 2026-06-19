@@ -46,7 +46,8 @@ def select_moments(transcript, *, n=config.DEFAULT_CLIP_COUNT, model=config.MODE
         f"pick the {n} best self-contained moments to cut as vertical short clips. "
         "Each moment needs: start and end in SECONDS (use the [Ns] markers as your guide), "
         "a one-line reason it will perform, and a punchy hook headline of at most 8 words. "
-        f"Clips must be between {config.MIN_CLIP_SEC:.0f} and {config.MAX_CLIP_SEC:.0f} seconds.\n\n"
+        f"Aim for about {config.TARGET_CLIP_SEC:.0f} seconds per clip; they must stay "
+        f"between {config.MIN_CLIP_SEC:.0f} and {config.MAX_CLIP_SEC:.0f} seconds.\n\n"
         f"TRANSCRIPT:\n{body}"
     )
     resp = client.messages.parse(

@@ -23,8 +23,11 @@ FFMPEG = os.environ.get("CLIP_FFMPEG", "ffmpeg")
 # 9:16 render target
 TARGET_W = 1080
 TARGET_H = 1920
-MIN_CLIP_SEC = 15.0
-MAX_CLIP_SEC = 90.0
+# Clip length: aim for ~40s, hard-capped at 55s so every clip stays under
+# YouTube's 60s Shorts threshold. Override via env.
+MIN_CLIP_SEC = float(os.environ.get("CLIP_MIN_SEC", "20"))
+TARGET_CLIP_SEC = float(os.environ.get("CLIP_TARGET_SEC", "40"))
+MAX_CLIP_SEC = float(os.environ.get("CLIP_MAX_SEC", "55"))
 
 # $ per 1M tokens: (input, output)
 PRICING = {
