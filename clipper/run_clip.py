@@ -12,14 +12,16 @@ def run_preview(source: str) -> Path:
     moments = select.select_moments(tx, n=1)
     if not moments:
         raise SystemExit("No moments found in source.")
-    out_dir = config.OUTPUT_DIR / fetched.video_id
+    out_dir = config.OUTPUT_DIR / fetched.video_id / "clip_01"
     out = render.render_clip(fetched.path, moments[0], tx.words, out_dir, 1)
     return out
 
 
 def clip_transcript(transcript, start, end) -> str:
+    # include any word overlapping the window (matches captions.build_ass) so
+    # boundary words still feed the metadata writer
     return " ".join(
-        w.text.strip() for w in transcript.words if w.start >= start and w.end <= end
+        w.text.strip() for w in transcript.words if w.end > start and w.start < end
     ).strip()
 
 

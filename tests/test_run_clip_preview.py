@@ -28,7 +28,7 @@ def test_run_preview_wires_the_stages(monkeypatch, tmp_path):
                         SimpleNamespace(render_clip=fake_render_clip))
 
     out = run_clip.run_preview("anything")
-    assert out == tmp_path / "vid9" / "clip_01.mp4"
+    assert out == tmp_path / "vid9" / "clip_01" / "clip_01.mp4"
 
 
 def test_main_preview_returns_zero(monkeypatch):
