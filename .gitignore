@@ -7,3 +7,6 @@ __pycache__/
 *.wav
 *.aiff
 work/
+.DS_Store
+logs/
+.superpowers/

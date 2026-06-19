@@ -26,10 +26,12 @@ clips manually.
 | Core scope | Clip generation only — no posting, no campaign discovery |
 | Source input | Long YouTube videos / podcasts (URL, 1–3 hr) |
 | Moment selection | LLM picks the top N viral moments from the transcript (no review step) |
-| Render style | Approach A — pure ffmpeg: center-crop 16:9→9:16 + ASS karaoke captions + hook headline |
-| Reframe | Center-crop (not blurred-pad) — revisit only if the preview looks wrong |
+| Render style | Approach A — pure ffmpeg: 9:16 + ASS karaoke captions + hook headline |
+| Reframe | **Blurred-pad** — full 16:9 frame centered over a blurred fill (chosen at the preview gate; center-crop cut speakers out of wide two-shots). Hook headline is word-wrapped to fit. |
+| Clip length | Target ~40s, hard-capped 20–55s so every clip stays under YouTube's 60s Shorts threshold (`CLIP_MIN_SEC`/`CLIP_TARGET_SEC`/`CLIP_MAX_SEC`). |
 | Per-clip output | MP4 + post metadata (LLM caption/title/hashtags) |
 | Run model | CLI, auto top-N, default 6 clips (configurable), no approval queue |
+| ffmpeg | System ffmpeg must have libass + libfreetype (caption/text burn). `CLIP_FFMPEG` overrides the binary; the macOS core Homebrew ffmpeg lacks these — use the homebrew-ffmpeg tap build. |
 | Project home | Brand-new separate repo (`~/clip_factory`) |
 | Downloader | **yt-dlp** (maintained fork; the original `youtube-dl` is unmaintained and breaks on current YouTube). Supports `ytsearch:"query"` for finding videos. |
 | Transcription | Local `faster-whisper` — free, runs on the M5, gives word-level timestamps |
@@ -45,9 +47,10 @@ clips manually.
    `reason`, and a suggested `hook` headline. Boundaries are snapped to clean
    sentence edges from the word timing.
 4. **Render** (`render.py` + `captions.py`) — per moment, pure ffmpeg:
-   cut `start→end`, **center-crop 16:9 → 9:16**, burn an **ASS karaoke caption**
+   cut `start→end`, **blurred-pad to 9:16** (full 16:9 frame centered over a
+   blurred, zoomed fill — nothing cropped out), burn an **ASS karaoke caption**
    file (word-by-word highlight built from the Whisper word times), and overlay
-   the **static hook headline** at the top.
+   the **word-wrapped hook headline** at the top. ffmpeg binary is `config.FFMPEG`.
 5. **Package** (`metadata.py`) — an LLM writes a **post caption + title + hashtags**
    per clip. Each clip lands in its own folder with `clip_NN.mp4` + `meta.json`.
 
