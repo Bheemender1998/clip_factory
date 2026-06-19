@@ -7,8 +7,11 @@ from clipper.transcribe import Word
 
 def test_build_vf_contains_stages():
     vf = render.build_vf("/tmp/c.ass", "/tmp/hook.txt", width=1080, height=1920)
-    assert "crop=ih*9/16:ih" in vf
-    assert "scale=1080:1920" in vf
+    # blurred-pad reframe: split into blurred bg + full-frame fg, overlaid
+    assert "split=2[bg][fg]" in vf
+    assert "boxblur" in vf
+    assert "scale=1080:1920:force_original_aspect_ratio=increase" in vf
+    assert "overlay=(W-w)/2:(H-h)/2" in vf
     assert "ass=" in vf
     assert "drawtext=textfile=" in vf
 
@@ -16,6 +19,13 @@ def test_build_vf_contains_stages():
 def test_build_vf_without_hook():
     vf = render.build_vf("/tmp/c.ass", None)
     assert "drawtext" not in vf
+
+
+def test_wrap_hook_breaks_long_headline():
+    wrapped = render.wrap_hook("How They Faked The Moon Landing", width=18)
+    assert "\n" in wrapped  # long hook wraps to multiple lines
+    assert all(len(line) <= 18 for line in wrapped.split("\n"))
+    assert render.wrap_hook("Short Hook") == "Short Hook"  # short stays one line
 
 
 def test_build_cmd_uses_duration_not_to():
