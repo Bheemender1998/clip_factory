@@ -16,6 +16,10 @@ DEFAULT_CLIP_COUNT = int(os.environ.get("CLIP_COUNT", "6"))
 WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "base.en")
 WHISPER_COMPUTE = os.environ.get("WHISPER_COMPUTE", "int8")
 
+# ffmpeg binary — override with CLIP_FFMPEG to point at a font-enabled build
+# (the core Homebrew ffmpeg lacks libass/libfreetype, so it cannot burn captions).
+FFMPEG = os.environ.get("CLIP_FFMPEG", "ffmpeg")
+
 # 9:16 render target
 TARGET_W = 1080
 TARGET_H = 1920

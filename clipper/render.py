@@ -24,7 +24,7 @@ def build_vf(ass_path, hook_txt_path, *, width=config.TARGET_W, height=config.TA
 
 def build_cmd(input_path, start, end, vf, out_path) -> list:
     return [
-        "ffmpeg", "-y",
+        config.FFMPEG, "-y",
         "-ss", f"{start:.3f}",
         "-i", str(input_path),
         "-t", f"{end - start:.3f}",
