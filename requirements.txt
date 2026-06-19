@@ -1,0 +1,6 @@
+anthropic
+yt-dlp
+faster-whisper
+pydantic
+python-dotenv
+pytest
