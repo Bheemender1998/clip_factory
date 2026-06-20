@@ -1,13 +1,12 @@
-import re
 from pathlib import Path
 
 from clipper import config
 
-# yt-dlp search queries (ytsearch:, ytsearch5:, ytsearchdate:, scsearch:, ...) are
-# unattributable: the scheme resolves to arbitrary uploader content, not a source we
-# can hold rights for. Matches a leading "<word>search<word>:" scheme; plain http(s)
-# URLs and @handles never match (their scheme has no "search").
-_SEARCH_SCHEME = re.compile(r"^[a-z0-9]*search[a-z0-9]*:", re.IGNORECASE)
+# Only a concrete web URL is an attributable source. fetch.normalize_source turns
+# every non-URL string into a ytsearch query, so anything that isn't http(s):// —
+# a bare term, ytsearch:/scsearch:/... scheme — resolves to arbitrary uploader
+# content we can hold no rights for, and must hard-refuse.
+_URL_SCHEMES = ("http://", "https://")
 
 
 def _authorized_tokens(sources_md: Path) -> list[str]:
@@ -30,12 +29,13 @@ def _authorized_tokens(sources_md: Path) -> list[str]:
 
 
 def is_authorized(source: str, *, sources_md: Path = None) -> bool:
-    """True iff `source` contains an authorized token. Fails closed: an empty
-    source, an unlisted source, or any search-scheme term (ytsearch:, scsearch:,
-    …) returns False — even when the search query contains an authorized token."""
+    """True iff `source` is a concrete http(s):// URL that contains an authorized
+    token. Fails closed for everything fetch.normalize_source would rewrite into a
+    search — an empty source, a bare (scheme-less) term, or any search scheme
+    (ytsearch:, scsearch:, …) — even when the string embeds an authorized token."""
     sources_md = sources_md or config.SOURCES_MD
     src = (source or "").strip().lower()
-    if not src or _SEARCH_SCHEME.match(src):
+    if not src.startswith(_URL_SCHEMES):
         return False
     return any(tok in src for tok in _authorized_tokens(sources_md))
 
