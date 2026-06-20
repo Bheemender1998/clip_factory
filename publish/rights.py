@@ -1,6 +1,13 @@
+import re
 from pathlib import Path
 
 from clipper import config
+
+# yt-dlp search queries (ytsearch:, ytsearch5:, ytsearchdate:, scsearch:, ...) are
+# unattributable: the scheme resolves to arbitrary uploader content, not a source we
+# can hold rights for. Matches a leading "<word>search<word>:" scheme; plain http(s)
+# URLs and @handles never match (their scheme has no "search").
+_SEARCH_SCHEME = re.compile(r"^[a-z0-9]*search[a-z0-9]*:", re.IGNORECASE)
 
 
 def _authorized_tokens(sources_md: Path) -> list[str]:
@@ -24,10 +31,11 @@ def _authorized_tokens(sources_md: Path) -> list[str]:
 
 def is_authorized(source: str, *, sources_md: Path = None) -> bool:
     """True iff `source` contains an authorized token. Fails closed: an empty
-    source, an unlisted source, or any ytsearch: term returns False."""
+    source, an unlisted source, or any search-scheme term (ytsearch:, scsearch:,
+    …) returns False — even when the search query contains an authorized token."""
     sources_md = sources_md or config.SOURCES_MD
     src = (source or "").strip().lower()
-    if not src:
+    if not src or _SEARCH_SCHEME.match(src):
         return False
     return any(tok in src for tok in _authorized_tokens(sources_md))
 
