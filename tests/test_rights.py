@@ -14,6 +14,11 @@ def test_authorized_when_source_matches_token(tmp_path):
     assert rights.is_authorized("https://youtube.com/@chan/watch?v=abc", sources_md=md)
 
 
+def test_authorized_url_scheme_is_case_insensitive(tmp_path):
+    md = _md(tmp_path, "## Authorized\n- **Chan** — https://youtube.com/@chan — owner — 2026-06-19\n")
+    assert rights.is_authorized("HTTPS://youtube.com/@chan/watch?v=abc", sources_md=md)
+
+
 def test_unlisted_source_blocked(tmp_path):
     md = _md(tmp_path, "## Authorized\n- **Chan** — https://youtube.com/@chan — owner — 2026-06-19\n")
     assert not rights.is_authorized("https://youtube.com/@someoneelse", sources_md=md)
@@ -32,6 +37,14 @@ def test_search_query_containing_authorized_token_blocked(tmp_path):
     assert not rights.is_authorized("ytsearch1:chan", sources_md=md)
     assert not rights.is_authorized("ytsearchdate:chan", sources_md=md)
     assert not rights.is_authorized("scsearch:chan", sources_md=md)
+
+
+def test_bare_search_term_blocked(tmp_path):
+    # fetch.normalize_source turns any non-URL into a ytsearch query, so a bare
+    # (scheme-less) term is a search too — refuse it even if it embeds a token.
+    md = _md(tmp_path, "## Authorized\n- **Chan** — chan — owner — 2026-06-19\n")
+    assert not rights.is_authorized("chan funny moments", sources_md=md)
+    assert not rights.is_authorized("chan", sources_md=md)
 
 
 def test_format_section_tokens_ignored(tmp_path):
