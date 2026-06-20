@@ -25,3 +25,14 @@ def test_youtube_body_maps_tags_category_and_shorts():
     assert body["snippet"]["categoryId"] == config.YT_CATEGORY
     assert "#Shorts" in body["snippet"]["description"]
     assert body["snippet"]["description"].startswith("C")
+
+
+def test_log_upload_appends_jsonl(tmp_path):
+    ledger = tmp_path / "uploads.jsonl"
+    youtube.log_upload({"video_id": "v1", "source": "s", "privacy": "private", "clip_dir": "d"}, ledger=ledger)
+    youtube.log_upload({"video_id": "v2", "source": "s", "privacy": "public", "clip_dir": "d"}, ledger=ledger)
+    lines = ledger.read_text().strip().splitlines()
+    assert len(lines) == 2
+    first = json.loads(lines[0])
+    assert first["video_id"] == "v1"
+    assert "ts" in first

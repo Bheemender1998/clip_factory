@@ -24,3 +24,14 @@ def youtube_body(meta: dict, *, public: bool) -> dict:
             "privacyStatus": "public" if public else "private",
         },
     }
+
+
+def log_upload(record: dict, *, ledger: Path = None) -> dict:
+    """Append one upload record to logs/uploads.jsonl (local record + daily-quota
+    tally + Stage-3 seed)."""
+    ledger = ledger or config.UPLOAD_LOG
+    rec = {"ts": time.time(), **record}
+    ledger.parent.mkdir(parents=True, exist_ok=True)
+    with ledger.open("a") as f:
+        f.write(json.dumps(rec) + "\n")
+    return rec
