@@ -9,6 +9,9 @@ ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_DIR = ROOT / "output"
 WORK_DIR = ROOT / "work"
 
+# --- Stage 2: YouTube publishing ---
+SOURCES_MD = ROOT / "SOURCES.md"
+
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 MODEL = os.environ.get("CLIP_MODEL", "claude-opus-4-8")
 DEFAULT_CLIP_COUNT = int(os.environ.get("CLIP_COUNT", "6"))
