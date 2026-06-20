@@ -16,7 +16,7 @@ The Untold Game (TUG)'s `engine/` governance, adapted to a smaller single-venv t
 | `clipper/metadata.py` | LLM title/caption/hashtags | LIVE |
 | `clipper/cost_log.py` / `cost_report.py` | per-call cost ledger + summary | LIVE |
 | `clipper/run_clip.py` | CLI: `--preview` (one clip) / `--n` (batch) | LIVE |
-| `publish/` | Stage 2 auto-post (TikTok/IG/YT) | planned |
+| `publish/youtube.py` + `rights.py` | Stage 2: manual single-clip YouTube upload, SOURCES.md-gated | LIVE (YouTube only) |
 | `outcomes/` | Stage 3 earnings/virality tracking | planned |
 | `docs/adr/`, `docs/execution-plan.md` | decisions + roadmap | LIVE |
 
@@ -40,6 +40,7 @@ The Untold Game (TUG)'s `engine/` governance, adapted to a smaller single-venv t
 python3 -m clipper.run_clip "<url>" --preview     # render the single best clip (eyeball gate)
 python3 -m clipper.run_clip "<url>" --n 6         # batch: top-N clips + meta.json each
 python3 -m clipper.cost_report                    # API spend by stage
+python3 -m publish.youtube output/<vid>/clip_03           # upload one clip (PRIVATE; --public to go live)
 ```
 
 ## Skills (`.claude/skills/`)
