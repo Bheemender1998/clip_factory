@@ -11,6 +11,7 @@ WORK_DIR = ROOT / "work"
 
 # --- Stage 2: YouTube publishing ---
 SOURCES_MD = ROOT / "SOURCES.md"
+YT_CATEGORY = os.environ.get("CLIP_YT_CATEGORY", "22")  # 22 = People & Blogs
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 MODEL = os.environ.get("CLIP_MODEL", "claude-opus-4-8")
