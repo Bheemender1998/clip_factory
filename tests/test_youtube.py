@@ -36,3 +36,48 @@ def test_log_upload_appends_jsonl(tmp_path):
     first = json.loads(lines[0])
     assert first["video_id"] == "v1"
     assert "ts" in first
+
+
+def _clip(tmp_path, source, name="clip_01"):
+    clip = tmp_path / name
+    clip.mkdir()
+    (clip / "meta.json").write_text(json.dumps(
+        {"source": source, "title": "T", "caption": "C", "hashtags": ["#a"]}))
+    (clip / f"{name}.mp4").write_bytes(b"fakebytes")
+    return clip
+
+
+def test_upload_blocks_unauthorized_source(tmp_path):
+    clip = _clip(tmp_path, "ytsearch:funny")
+    md = tmp_path / "SOURCES.md"
+    md.write_text("## Authorized\n_(none yet)_\n")
+    with pytest.raises(rights.RightsError):
+        youtube.upload(clip, service=object(), sources_md=md)
+
+
+def test_upload_authorized_logs_and_returns_url(tmp_path, monkeypatch):
+    clip = _clip(tmp_path, "https://youtube.com/@chan/watch?v=abc")
+    md = tmp_path / "SOURCES.md"
+    md.write_text("## Authorized\n- **C** — https://youtube.com/@chan — owner — 2026-06-19\n")
+    ledger = tmp_path / "uploads.jsonl"
+    monkeypatch.setattr(youtube, "_insert", lambda service, body, path: {"id": "vid123"})
+    url = youtube.upload(clip, public=False, service=object(), sources_md=md, ledger=ledger)
+    assert url == "https://youtube.com/watch?v=vid123"
+    rec = json.loads(ledger.read_text().strip())
+    assert rec["video_id"] == "vid123"
+    assert rec["privacy"] == "private"
+    assert rec["source"] == "https://youtube.com/@chan/watch?v=abc"
+
+
+def test_main_invokes_upload_and_prints_url(monkeypatch, capsys):
+    seen = {}
+
+    def fake_upload(clip_dir, *, public=False):
+        seen["clip_dir"] = clip_dir
+        seen["public"] = public
+        return "https://youtube.com/watch?v=zzz"
+
+    monkeypatch.setattr(youtube, "upload", fake_upload)
+    youtube.main(["output/vid/clip_02", "--public"])
+    assert seen["public"] is True
+    assert "watch?v=zzz" in capsys.readouterr().out

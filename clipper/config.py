@@ -13,6 +13,9 @@ WORK_DIR = ROOT / "work"
 SOURCES_MD = ROOT / "SOURCES.md"
 YT_CATEGORY = os.environ.get("CLIP_YT_CATEGORY", "22")  # 22 = People & Blogs
 UPLOAD_LOG = ROOT / "logs" / "uploads.jsonl"
+YT_CLIENT_SECRET = os.environ.get("CLIP_YT_CLIENT_SECRET", str(ROOT / "secrets" / "client_secret.json"))
+YT_TOKEN = os.environ.get("CLIP_YT_TOKEN", str(ROOT / "secrets" / "youtube_token.json"))
+YT_SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 MODEL = os.environ.get("CLIP_MODEL", "claude-opus-4-8")
