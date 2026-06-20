@@ -56,11 +56,12 @@ python3 -m publish.youtube output/<vid>/clip_03           # upload one clip (PRI
 ## Gate discipline
 
 - Stage 1 = **clip generation — LIVE**.
-- Stage 2 = auto-post to TikTok / IG Reels / YouTube Shorts — **planned**.
+- Stage 2 = auto-post — **YouTube manual single-clip upload LIVE** (`publish/youtube.py`,
+  SOURCES.md-gated, private-by-default); scheduled batch / TikTok / IG Reels — **planned**.
 - Stage 3 = earnings / virality tracking vs predicted — **planned**.
 
-Do **not** build Stage 2/3 speculatively. Prove each stage's value before expanding
-surface.
+Do **not** build the planned Stage 2/3 surface speculatively. Prove each stage's value
+before expanding surface.
 
 ## Hard rules
 
@@ -71,7 +72,8 @@ surface.
 - **Rights / integrity gate** — only clip source content you are authorized to use.
   Authorized sources live in `SOURCES.md`. Never publish a clip from an unlisted
   source without confirming rights. This is clip_factory's analog of TUG's fact-gate;
-  it becomes programmatically enforced at Stage 2 (posting).
+  it is programmatically enforced at Stage 2 posting by `publish/rights.py` (fail-closed —
+  an unlisted or `ytsearch:` source is refused).
 - **Two run modes** — `--preview` is the human eyeball gate; only run a `--n` batch
   after the look is approved for that source.
 - **Smallest sufficient change** — no speculative abstraction/config; touch only what
