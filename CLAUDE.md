@@ -71,9 +71,14 @@ before expanding surface.
   `clipper-test` PostToolUse hook runs it automatically and fails loudly.
 - **Rights / integrity gate** — only clip source content you are authorized to use.
   Authorized sources live in `SOURCES.md`. Never publish a clip from an unlisted
-  source without confirming rights. This is clip_factory's analog of TUG's fact-gate;
-  it is programmatically enforced at Stage 2 posting by `publish/rights.py` (fail-closed —
-  an unlisted or `ytsearch:` source is refused).
+  source without confirming rights. This is clip_factory's analog of TUG's fact-gate.
+  Enforcement today: **Stage 1 (clipping) is a manual gate** — the make-clips /
+  preview-clip skills instruct confirming the source is listed before clipping;
+  `run_clip` does not check it in code. **Stage 2 (posting) is enforced in code** by
+  `publish/rights.py`: `upload()` refuses any source that doesn't match a `SOURCES.md`
+  entry (default-deny). Matching is substring-based today, so keep authorized tokens
+  specific; tightening to host/handle matching and a categorical `ytsearch:` refusal are
+  tracked Stage-2 follow-ups.
 - **Two run modes** — `--preview` is the human eyeball gate; only run a `--n` batch
   after the look is approved for that source.
 - **Smallest sufficient change** — no speculative abstraction/config; touch only what
