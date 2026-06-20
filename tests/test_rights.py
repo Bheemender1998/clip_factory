@@ -24,6 +24,16 @@ def test_ytsearch_source_blocked(tmp_path):
     assert not rights.is_authorized("ytsearch:funny cats", sources_md=md)
 
 
+def test_search_query_containing_authorized_token_blocked(tmp_path):
+    # A search term is unattributable: it must be refused even when it contains
+    # an authorized token as a substring (the hard-refuse contract).
+    md = _md(tmp_path, "## Authorized\n- **Chan** — chan — owner — 2026-06-19\n")
+    assert not rights.is_authorized("ytsearch:chan funny moments", sources_md=md)
+    assert not rights.is_authorized("ytsearch1:chan", sources_md=md)
+    assert not rights.is_authorized("ytsearchdate:chan", sources_md=md)
+    assert not rights.is_authorized("scsearch:chan", sources_md=md)
+
+
 def test_format_section_tokens_ignored(tmp_path):
     md = _md(tmp_path, "## Format\n- **<name>** — <channel/URL> — <basis> — <date>\n## Authorized\n_(none yet)_\n")
     assert not rights.is_authorized("https://youtube.com/@chan", sources_md=md)
