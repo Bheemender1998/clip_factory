@@ -16,7 +16,7 @@ The Untold Game (TUG)'s `engine/` governance, adapted to a smaller single-venv t
 | `clipper/metadata.py` | LLM title/caption/hashtags | LIVE |
 | `clipper/cost_log.py` / `cost_report.py` | per-call cost ledger + summary | LIVE |
 | `clipper/run_clip.py` | CLI: `--preview` (one clip) / `--n` (batch) | LIVE |
-| `publish/` | Stage 2 auto-post (TikTok/IG/YT) | planned |
+| `publish/youtube.py` + `rights.py` | Stage 2: manual single-clip YouTube upload, SOURCES.md-gated | LIVE (YouTube only) |
 | `outcomes/` | Stage 3 earnings/virality tracking | planned |
 | `docs/adr/`, `docs/execution-plan.md` | decisions + roadmap | LIVE |
 
@@ -40,6 +40,7 @@ The Untold Game (TUG)'s `engine/` governance, adapted to a smaller single-venv t
 python3 -m clipper.run_clip "<url>" --preview     # render the single best clip (eyeball gate)
 python3 -m clipper.run_clip "<url>" --n 6         # batch: top-N clips + meta.json each
 python3 -m clipper.cost_report                    # API spend by stage
+python3 -m publish.youtube output/<vid>/clip_03           # upload one clip (PRIVATE; --public to go live)
 ```
 
 ## Skills (`.claude/skills/`)
@@ -55,11 +56,12 @@ python3 -m clipper.cost_report                    # API spend by stage
 ## Gate discipline
 
 - Stage 1 = **clip generation — LIVE**.
-- Stage 2 = auto-post to TikTok / IG Reels / YouTube Shorts — **planned**.
+- Stage 2 = auto-post — **YouTube manual single-clip upload LIVE** (`publish/youtube.py`,
+  SOURCES.md-gated, private-by-default); scheduled batch / TikTok / IG Reels — **planned**.
 - Stage 3 = earnings / virality tracking vs predicted — **planned**.
 
-Do **not** build Stage 2/3 speculatively. Prove each stage's value before expanding
-surface.
+Do **not** build the planned Stage 2/3 surface speculatively. Prove each stage's value
+before expanding surface.
 
 ## Hard rules
 
@@ -69,8 +71,14 @@ surface.
   `clipper-test` PostToolUse hook runs it automatically and fails loudly.
 - **Rights / integrity gate** — only clip source content you are authorized to use.
   Authorized sources live in `SOURCES.md`. Never publish a clip from an unlisted
-  source without confirming rights. This is clip_factory's analog of TUG's fact-gate;
-  it becomes programmatically enforced at Stage 2 (posting).
+  source without confirming rights. This is clip_factory's analog of TUG's fact-gate.
+  Enforcement today: **Stage 1 (clipping) is a manual gate** — the make-clips /
+  preview-clip skills instruct confirming the source is listed before clipping;
+  `run_clip` does not check it in code. **Stage 2 (posting) is enforced in code** by
+  `publish/rights.py`: `upload()` refuses any source that doesn't match a `SOURCES.md`
+  entry (default-deny). Matching is substring-based today, so keep authorized tokens
+  specific; tightening to host/handle matching and a categorical `ytsearch:` refusal are
+  tracked Stage-2 follow-ups.
 - **Two run modes** — `--preview` is the human eyeball gate; only run a `--n` batch
   after the look is approved for that source.
 - **Smallest sufficient change** — no speculative abstraction/config; touch only what

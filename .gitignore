@@ -10,3 +10,4 @@ work/
 .DS_Store
 logs/
 .superpowers/
+secrets/

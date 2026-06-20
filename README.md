@@ -31,6 +31,20 @@ python3 -m clipper.cost_report                           # API spend by stage
 
 Output: `output/<video_id>/clip_NN/{clip_NN.mp4, meta.json}`.
 
+## Publishing (Stage 2 — YouTube, manual)
+
+Upload one rendered clip to your YouTube channel (private by default; `--public` to go live):
+
+```bash
+python3 -m publish.youtube output/<vid>/clip_03
+```
+
+First run opens a browser once for Google OAuth consent and caches a refresh token at
+`secrets/youtube_token.json`. Requires `secrets/client_secret.json` (a Desktop-app OAuth
+client from a Google Cloud project with the YouTube Data API v3 enabled). The clip's
+`source` must be listed in `SOURCES.md` or the upload is refused. API uploads are capped
+at ~6/day by the default 10,000-unit YouTube quota.
+
 ## Docs
 - `CLAUDE.md` — conventions, hard rules, gate discipline.
 - `docs/execution-plan.md` — staged roadmap.
